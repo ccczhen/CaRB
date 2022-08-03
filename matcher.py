@@ -184,7 +184,7 @@ class Matcher:
         precision[0] += matching_words
         recall[0] += matching_words
 
-        for i in range(len(ref.args)):
+        for i in range(len(ref.args)): #2
             gold_words = ref.args[i].split()
             recall[1] += len(gold_words)
             if len(ex.args) <= i:
@@ -287,12 +287,12 @@ class Matcher:
             r = copy(ref)
             r.args = [ref.args[0], ' '.join(ref.args[1:])]
         else:
-            r = ref
+            r = ref #triple
         if len(ex.args)>=2:
             e = copy(ex)
             e.args = [ex.args[0], ' '.join(ex.args[1:])]
         else:
-            e = ex
+            e = ex #triple
         stright_match = Matcher.linient_tuple_match(r, e, ignoreStopwords, ignoreCase)
 
         said_type_reln = ["said", "told", "added", "adds", "says", "adds"]

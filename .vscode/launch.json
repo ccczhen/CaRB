@@ -1,0 +1,17 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "carb",
+            "type": "python",
+            "request": "launch",
+            "program": "carb.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["--gold=data/gold/test.tsv","--out=dump/OpenIE-4.dat ","-openiefour=system_outputs/test/openie4_output.txt"]
+        }
+    ]
+}

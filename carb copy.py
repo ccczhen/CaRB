@@ -1,24 +1,5 @@
-'''
-Usage:
-   benchmark --gold=GOLD_OIE --out=OUTPUT_FILE (--openiefive=OPENIE5 | --stanford=STANFORD_OIE | --ollie=OLLIE_OIE |--reverb=REVERB_OIE | --clausie=CLAUSIE_OIE | --openiefour=OPENIEFOUR_OIE | --props=PROPS_OIE | --tabbed=TABBED_OIE | --benchmarkGold=BENCHMARK_GOLD | --allennlp=ALLENNLP_OIE ) [--exactMatch | --predMatch | --lexicalMatch | --binaryMatch | --simpleMatch | --strictMatch] [--error-file=ERROR_FILE] [--binary]
-
-Options:
-  --gold=GOLD_OIE              The gold reference Open IE file (by default, it should be under ./oie_corpus/all.oie).
-  --benchmarkgold=GOLD_OIE     The benchmark's gold reference. 
-  --out-OUTPUT_FILE            The output file, into which the precision recall curve will be written.
-  --clausie=CLAUSIE_OIE        Read ClausIE format from file CLAUSIE_OIE.
-  --ollie=OLLIE_OIE            Read OLLIE format from file OLLIE_OIE.
-  --openiefour=OPENIEFOUR_OIE  Read Open IE 4 format from file OPENIEFOUR_OIE.
-  --openiefive=OPENIE5         Read Open IE 5 format from file OPENIE5.
-  --props=PROPS_OIE            Read PropS format from file PROPS_OIE
-  --reverb=REVERB_OIE          Read ReVerb format from file REVERB_OIE
-  --stanford=STANFORD_OIE      Read Stanford format from file STANFORD_OIE
-  --tabbed=TABBED_OIE          Read simple tab format file, where each line consists of:
-                                sent, prob, pred,arg1, arg2, ...
-  --exactmatch                 Use exact match when judging whether an extraction is correct.
-'''
+import argparse
 from __future__ import division
-import docopt
 import string
 import numpy as np
 from sklearn.metrics import precision_recall_curve
@@ -70,29 +51,12 @@ class Benchmark:
         correctTotal = 0
         unmatchedCount = 0
         predicted = Benchmark.normalizeDict(predicted)
-        '''
-        golds:
-        "He sold them well below market value to raise cash `` to pay off mounting credit - card debts ,
-        '' incurred to buy presents for his girlfriend , his attorney , Philip Russell ,
-        told IFAR .": 
-        [<oie_readers.extraction.Extraction object at 0x000001D9D76AF358>,
-        <oie_readers.extraction.Extraction object at 0x000001D9D76AF3C8>,
-        <oie_readers.extraction.Extraction object at 0x000001D9D76AF438>]
-        '''
         gold = Benchmark.normalizeDict(self.gold)
         if binary:
             predicted = Benchmark.binarize(predicted)
             gold = Benchmark.binarize(gold)
         #gold = self.gold
-        '''
-        'Hesoldthemwellbelowmarketvaluetoraisecashtopayoffmountingcreditcarddebtsincurr
-        edtobuypresentsforhisgirlfriendhisattorneyPhilipRusselltoldIFAR': 
-        [<oie_readers.extraction.Extraction object at 0x000001D9D76AF358>, 
-        <oie_readers.extraction.Extraction object at 0x000001D9D76AF3C8>, 
-        <oie_readers.extraction.Extraction object at 0x000001D9D76AF438>]}
-        
-        predicted['HesoldthemwellbelowmarketvaluetoraisecashtopayoffmountingcreditcarddebtsincurredtobuypresentsforhisgirlfriendhisattorneyPhilipRusselltoldIFAR']
-        '''
+
         # taking all distinct values of confidences as thresholds
         confidence_thresholds = set()
         for sent in predicted:
@@ -110,17 +74,8 @@ class Benchmark:
 
         for sent, goldExtractions in gold.items():
 
-            if sent in predicted:#是没有空格标点的句子
-                predictedExtractions = predicted[sent] #
-                '''
-                [<oie_readers.extraction.Extraction object at 0x000001D9D6E17908>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E179B0>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E17A90>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E17B00>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E17B70>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E17C18>,
-                <oie_readers.extraction.Extraction object at 0x000001D9D6E17C88>]
-                '''
+            if sent in predicted:
+                predictedExtractions = predicted[sent]
             else:
                 predictedExtractions = []
 
@@ -133,7 +88,6 @@ class Benchmark:
 
             for i, goldEx in enumerate(goldExtractions):
                 for j, predictedEx in enumerate(predictedExtractions):
-                    import pdb;pdb.set_trace()
                     score = matchingFunc(goldEx, predictedEx,ignoreStopwords = True,ignoreCase = True)
                     scores[i][j] = score
 
@@ -337,8 +291,7 @@ def f_beta(precision, recall, beta = 1):
 
 
 if __name__ == '__main__':
-    args = docopt.docopt(__doc__)
-    logging.debug(args)
+
 
     if args['--stanford']:
         predicted = StanfordReader()
