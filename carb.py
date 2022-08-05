@@ -146,12 +146,13 @@ class Benchmark:
                 c = confidence_thresholds.index(conf)
                 ext_indices = []
                 for ext_indx, extraction in enumerate(predictedExtractions):
-                    if extraction.confidence >= conf:
+                    if extraction.confidence >= conf: #对置信分高于threshold的triples进行评估
                         ext_indices.append(ext_indx)
 
                 recall_numerator = 0
                 for i, row in enumerate(scores):
                     max_recall_row = max([row[ext_indx][1] for ext_indx in ext_indices ], default=0)
+                    #每一个gt都取最大的recall
                     recall_numerator += max_recall_row
 
                 precision_numerator = 0
@@ -159,14 +160,17 @@ class Benchmark:
                 selected_rows = []
                 selected_cols = []
                 num_precision_matches = min(len(scores), len(ext_indices))
+                #p采用1-1
                 for t in range(num_precision_matches):
                     matched_row = -1
                     matched_col = -1
                     matched_precision = -1 # initialised to <0 so that it updates whenever precision is 0 as well
                     for i in range(len(scores)):
+                        #对每一个gold triples都打分
                         if i in selected_rows:
                             continue
                         for ext_indx in ext_indices:
+                            #选择pred tri
                             if ext_indx in selected_cols:
                                 continue
                             if scores[i][ext_indx][0] > matched_precision:
